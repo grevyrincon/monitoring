@@ -6,17 +6,28 @@ pipeline {
     HELM_MONITORING_RELEASE = "monitoring"
     SECRET_NAME = 'aws-cred'
     AWS_REGION = 'us-east-1'
-    KUBE_CLUSTER = "api-cluster-${ENV}"
+    TF_BUCKET = "terraform-state-bucket-eks-cluster"  
+    TF_KEY = "${ENV}/terraform.tfstate"  
   }
 
   stages {
     
-    stage('Validate AWS') {
+    stage('Load Environment from Terraform State') {
       steps {
         withAWS(region: "${AWS_REGION}", credentials: "${SECRET_NAME}") {
-          sh 'aws --version'
-          sh 'aws sts get-caller-identity'
-          sh 'aws eks list-clusters'
+          script {
+              // Download the tfstate file
+              sh "aws s3 cp s3://${TF_BUCKET}/${TF_KEY} ./terraform.tfstate"
+
+              // Read the state file JSON
+              def tfStateText = readFile('terraform.tfstate')
+              def tfState = readJSON text: tfStateText
+              def outputs = tfState.outputs
+
+              env.KUBE_CLUSTER = outputs.cluster_name.value
+              env.AWS_REGION = outputs.aws_region.value
+
+          }
         }
       }
     }
