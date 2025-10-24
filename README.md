@@ -17,3 +17,9 @@ It includes custom dashboards, configuration files, and a CI/CD pipeline powered
 ├── dashboard/
 │   └── container-dashboard.json   # Grafana dashboard for container monitoring
 └── values-monitoring.yaml    # Monitoring configuration values (Helm/Prometheus)
+
+
+## dashboard
+![screenshot](images/image1.png)
+![screenshot](images/image2.png)
+![screenshot](images/image3.png)
