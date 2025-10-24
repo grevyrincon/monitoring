@@ -33,7 +33,7 @@ pipeline {
             helm upgrade --install ${HELM_MONITORING_RELEASE} prometheus-community/kube-prometheus-stack \
               --namespace observability \
               --create-namespace \
-              -f monitoring/values-monitoring.yaml
+              -f values-monitoring.yaml
           """
         }
       }
