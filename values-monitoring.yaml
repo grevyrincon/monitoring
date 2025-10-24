@@ -12,4 +12,6 @@ prometheus:
     podMonitorSelectorNilUsesHelmValues: false
     serviceMonitorSelectorNilUsesHelmValues: false
     scrapeInterval: 60s
-    storageSpec: {}
+    kubeletService: kubelet
+    scrapeKubelet: true
+    enableKubeletMetrics: true
