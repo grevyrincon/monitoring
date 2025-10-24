@@ -31,7 +31,26 @@ pipeline {
         }
       }
     }
+    stage('Create Grafana Dashboard ConfigMap') {
+      steps {
+        withAWS(region: "${AWS_REGION}", credentials: "${SECRET_NAME}") {
+          sh """
+            # Crear namespace si no existe
+            kubectl get ns observability >/dev/null 2>&1 || kubectl create ns observability
 
+            # Crear o actualizar el ConfigMap a partir del JSON
+            kubectl create configmap container-dashboard \
+              --from-file=dashboard/container-dashboard.json \
+              -n observability \
+              --dry-run=client -o yaml \
+              | kubectl apply -f -
+
+            # Añadir la etiqueta que el sidecar necesita
+            kubectl label configmap container-dashboard grafana_dashboard=1 -n observability --overwrite
+          """
+        }
+      }
+    }
     stage('Deploy Monitoring Stack') {
       steps {
         withAWS(region: "${AWS_REGION}", credentials: "${SECRET_NAME}") {
@@ -48,8 +67,7 @@ pipeline {
           """
         }
       }
-    }    
-    
+    }
   }
 
   post {
